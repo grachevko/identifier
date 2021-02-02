@@ -4,32 +4,37 @@ declare(strict_types=1);
 
 namespace Premier\Identifier;
 
+use InvalidArgumentException;
 use JsonSerializable;
-use LogicException;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use function get_debug_type;
+use function sprintf;
 
 /**
  * @psalm-immutable
  */
 abstract class Identifier implements JsonSerializable
 {
-    private UuidInterface $uuid;
+    private string $uuid;
 
-    final private function __construct(UuidInterface $uuid)
+    final private function __construct(string | UuidInterface $uuid)
     {
-        $this->uuid = $uuid;
+        $this->uuid = match (true) {
+            \is_string($uuid) && self::isValid($uuid) => $uuid,
+            $uuid instanceof UuidInterface => $uuid->toString(),
+            default => throw new InvalidArgumentException(sprintf('"%s" is not valid uuid.', $uuid)),
+        };
     }
 
     final public function __toString(): string
     {
-        return $this->toString();
+        return $this->uuid;
     }
 
     final public function toString(): string
     {
-        return $this->uuid->toString();
+        return $this->uuid;
     }
 
     /**
@@ -37,7 +42,7 @@ abstract class Identifier implements JsonSerializable
      */
     final public function jsonSerialize(): string
     {
-        return $this->toString();
+        return $this->uuid;
     }
 
     /**
@@ -53,7 +58,7 @@ abstract class Identifier implements JsonSerializable
 
         \assert($identifier instanceof $class);
 
-        /** @phpstan-ignore-next-line  */
+        /** @phpstan-ignore-next-line */
         return $identifier;
     }
 
@@ -62,8 +67,15 @@ abstract class Identifier implements JsonSerializable
      */
     final public static function same(?self $left, ?self $right): bool
     {
-        return (null === $left && null === $right)
-            || (null === $left ? null : $left->toString()) === (null === $right ? null : $right->toString());
+        if (null === $left || null === $right) {
+            return false;
+        }
+
+        if ($left::class !== $right::class) {
+            return false;
+        }
+
+        return $left->equal($right);
     }
 
     final public static function generate(): static
@@ -71,17 +83,12 @@ abstract class Identifier implements JsonSerializable
         return new static(Uuid::uuid6());
     }
 
-    public static function fromUuidOrNull(?UuidInterface $uuid): ?static
-    {
-        return null === $uuid ? null : self::fromUuid($uuid);
-    }
-
     final public static function fromString(string $uuid): static
     {
-        return new static(Uuid::fromString($uuid));
+        return new static($uuid);
     }
 
-    public static function fromAny(mixed $any): static
+    final public static function fromAny(mixed $any): static
     {
         if ($any instanceof static) {
             return $any;
@@ -95,7 +102,7 @@ abstract class Identifier implements JsonSerializable
             return static::fromString($any);
         }
 
-        throw new LogicException('Unexpected any: '.get_debug_type($any));
+        throw new InvalidArgumentException('Unexpected any: '.get_debug_type($any));
     }
 
     final public static function fromUuid(UuidInterface $uuid): static
@@ -103,18 +110,20 @@ abstract class Identifier implements JsonSerializable
         return new static($uuid);
     }
 
-    public static function isValid(string $uuid): bool
+    final public static function isValid(string $uuid): bool
     {
         return Uuid::isValid($uuid);
     }
 
     final public function toUuid(): UuidInterface
     {
-        return $this->uuid;
+        return Uuid::fromString($this->uuid);
     }
 
-    public function equal(?self $identifier): bool
+    final public function equal(?self $identifier): bool
     {
-        return null !== $identifier && $identifier->toString() === $this->toString();
+        return null !== $identifier
+            && static::class === $identifier::class
+            && $identifier->toString() === $this->toString();
     }
 }
