@@ -75,7 +75,7 @@ abstract class Identifier implements JsonSerializable
             return false;
         }
 
-        return $left->equal($right);
+        return $left->equals($right);
     }
 
     final public static function generate(): static
@@ -120,10 +120,16 @@ abstract class Identifier implements JsonSerializable
         return Uuid::fromString($this->uuid);
     }
 
-    final public function equal(?self $identifier): bool
+    final public function equals(mixed $identifier): bool
     {
-        return null !== $identifier
-            && static::class === $identifier::class
-            && $identifier->toString() === $this->toString();
+        if ($identifier instanceof static || $identifier instanceof UuidInterface) {
+            return $this->uuid === $identifier->toString();
+        }
+
+        if (\is_string($identifier)) {
+            return $this->uuid === $identifier;
+        }
+
+        return false;
     }
 }

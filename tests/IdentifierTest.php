@@ -39,7 +39,7 @@ final class IdentifierTest extends TestCase
         self::assertSame(self::UUID, $id->toString());
         self::assertSame(self::UUID, (string) $id);
 
-        self::assertFalse($id->equal(TestId::generate()));
+        self::assertFalse($id->equals(TestId::generate()));
     }
 
     public function testIsValid(): void
@@ -64,6 +64,16 @@ final class IdentifierTest extends TestCase
 
         self::assertTrue(Identifier::same(TestId::fromString(self::UUID), TestId::fromString(self::UUID)));
         self::assertFalse(Identifier::same(TestId::fromString(self::UUID), Test2Id::fromString(self::UUID)));
+    }
+
+    public function testEquals(): void
+    {
+        $id = TestId::generate();
+
+        self::assertFalse($id->equals(TestId::generate()));
+
+        self::assertTrue($id->equals($id->toString()));
+        self::assertFalse($id->equals(Test2Id::fromString($id->toString())));
     }
 }
 
