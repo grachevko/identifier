@@ -45,11 +45,11 @@ final class IdentifierArrayType extends Type
             throw ConversionException::conversionFailed($value, $this->name);
         }
 
-        $value = \array_map(static fn (Identifier $identifier): string => $identifier->toString(), $value);
+        $value = array_map(static fn (Identifier $identifier): string => $identifier->toString(), $value);
 
         try {
             /** @var string $encoded */
-            $encoded = \json_encode($value, \JSON_THROW_ON_ERROR);
+            $encoded = json_encode($value, JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw ConversionException::conversionFailedSerialization($value, 'json', $e->getMessage());
         }
@@ -67,7 +67,7 @@ final class IdentifierArrayType extends Type
         }
 
         try {
-            $value = \json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
+            $value = json_decode($value, true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw ConversionException::conversionFailed($value, $this->getName(), $e);
         }
@@ -75,7 +75,7 @@ final class IdentifierArrayType extends Type
         /** @var callable $callable */
         $callable = $this->class.'::fromString';
 
-        return \array_map(static fn (string $id): Identifier => $callable($id), $value);
+        return array_map(static fn (string $id): Identifier => $callable($id), $value);
     }
 
     /**

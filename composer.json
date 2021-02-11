@@ -40,7 +40,7 @@
     "prefer-stable": true,
     "scripts": {
         "cs": [
-            "vendor/bin/php-cs-fixer fix"
+            "vendor/bin/php-cs-fixer fix --using-cache=no"
         ],
         "cs-check": [
             "vendor/bin/php-cs-fixer fix --verbose --diff --dry-run"

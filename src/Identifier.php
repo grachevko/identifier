@@ -19,7 +19,7 @@ abstract class Identifier implements \JsonSerializable
         $this->uuid = match (true) {
             \is_string($uuid) && self::isValid($uuid) => $uuid,
             $uuid instanceof UuidInterface => $uuid->toString(),
-            default => throw new \InvalidArgumentException(\sprintf('"%s" is not valid uuid.', $uuid)),
+            default => throw new \InvalidArgumentException(sprintf('"%s" is not valid uuid.', $uuid)),
         };
     }
 
@@ -98,7 +98,7 @@ abstract class Identifier implements \JsonSerializable
             return static::fromString($any);
         }
 
-        throw new \InvalidArgumentException('Unexpected any: '.\get_debug_type($any));
+        throw new \InvalidArgumentException('Unexpected any: '.get_debug_type($any));
     }
 
     final public static function fromUuid(UuidInterface $uuid): static
