@@ -67,10 +67,16 @@ final class IdentifierTest extends TestCase
     }
 }
 
+/**
+ * @psalm-immutable
+ */
 final class TestId extends Identifier
 {
 }
 
+/**
+ * @psalm-immutable
+ */
 final class Test2Id extends Identifier
 {
 }
