@@ -7,7 +7,6 @@ namespace Premier\Identifier\Symfony;
 use Premier\Identifier\Identifier;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use function is_subclass_of;
 
 final class IdentifierNormalizer implements NormalizerInterface, DenormalizerInterface
 {
@@ -16,7 +15,7 @@ final class IdentifierNormalizer implements NormalizerInterface, DenormalizerInt
      */
     public function denormalize($data, string $type, string $format = null, array $context = []): Identifier
     {
-        \assert(is_subclass_of($type, Identifier::class));
+        \assert(\is_subclass_of($type, Identifier::class));
 
         return Identifier::fromClass($type, $data);
     }
@@ -26,7 +25,7 @@ final class IdentifierNormalizer implements NormalizerInterface, DenormalizerInt
      */
     public function supportsDenormalization($data, string $type, string $format = null): bool
     {
-        return is_subclass_of($type, Identifier::class);
+        return \is_subclass_of($type, Identifier::class);
     }
 
     /**

@@ -7,12 +7,7 @@ namespace Premier\Identifier\Doctrine;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
-use JsonException;
 use Premier\Identifier\Identifier;
-use function array_map;
-use function json_decode;
-use function json_encode;
-use const JSON_THROW_ON_ERROR;
 
 /**
  * @psalm-suppress PropertyNotSetInConstructor
@@ -50,12 +45,12 @@ final class IdentifierArrayType extends Type
             throw ConversionException::conversionFailed($value, $this->name);
         }
 
-        $value = array_map(static fn (Identifier $identifier): string => $identifier->toString(), $value);
+        $value = \array_map(static fn (Identifier $identifier): string => $identifier->toString(), $value);
 
         try {
             /** @var string $encoded */
-            $encoded = json_encode($value, JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
+            $encoded = \json_encode($value, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
             throw ConversionException::conversionFailedSerialization($value, 'json', $e->getMessage());
         }
 
@@ -72,15 +67,15 @@ final class IdentifierArrayType extends Type
         }
 
         try {
-            $value = json_decode($value, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
+            $value = \json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
             throw ConversionException::conversionFailed($value, $this->getName(), $e);
         }
 
         /** @var callable $callable */
         $callable = $this->class.'::fromString';
 
-        return array_map(static fn (string $id): Identifier => $callable($id), $value);
+        return \array_map(static fn (string $id): Identifier => $callable($id), $value);
     }
 
     /**
