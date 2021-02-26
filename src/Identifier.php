@@ -90,6 +90,10 @@ abstract class Identifier implements \JsonSerializable
             return $any;
         }
 
+        if ($any instanceof self) {
+            return new static($any->toUuid());
+        }
+
         if ($any instanceof UuidInterface) {
             return static::fromUuid($any);
         }

@@ -53,6 +53,10 @@ final class IdentifierTest extends TestCase
         self::assertInstanceOf(TestId::class, TestId::fromAny(self::UUID));
         self::assertInstanceOf(TestId::class, TestId::fromAny(Uuid::uuid6()));
         self::assertInstanceOf(TestId::class, TestId::fromAny(TestId::generate()));
+
+        $id = Test2Id::fromAny(TestId::fromString(self::UUID));
+        self::assertInstanceOf(Test2Id::class, $id);
+        self::assertSame(self::UUID, $id->toString());
     }
 
     public function testSame(): void
