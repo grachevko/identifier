@@ -57,7 +57,7 @@
             "vendor/bin/psalm"
         ],
         "test": [
-            "@norm-check",
+            "@norm",
             "@cs",
             "@phpstan",
             "@psalm",
