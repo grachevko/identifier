@@ -83,6 +83,13 @@ final class IdentifierTest extends TestCase
         self::assertSame($id->toString(), $id->jsonSerialize());
         self::assertSame(sprintf('"%s"', $id->toString()), json_encode($id, JSON_THROW_ON_ERROR));
     }
+
+    public function testSerialize(): void
+    {
+        $id = TestId::generate();
+
+        self::assertTrue($id->equals(unserialize(serialize($id))));
+    }
 }
 
 /**
