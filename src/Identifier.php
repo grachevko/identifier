@@ -84,6 +84,16 @@ abstract class Identifier implements \JsonSerializable
         return new static($uuid);
     }
 
+    /**
+     * @param string[] $uuids
+     *
+     * @return static[]
+     */
+    final public static function fromStrings(array $uuids): array
+    {
+        return array_map(fn (string $uuid) => new static($uuid), $uuids);
+    }
+
     final public static function fromAny(mixed $any): static
     {
         if ($any instanceof static) {
@@ -108,6 +118,16 @@ abstract class Identifier implements \JsonSerializable
     final public static function fromUuid(UuidInterface $uuid): static
     {
         return new static($uuid);
+    }
+
+    /**
+     * @param UuidInterface[] $uuids
+     *
+     * @return static[]
+     */
+    final public static function fromUuids(array $uuids): array
+    {
+        return array_map(fn (UuidInterface $uuid) => new static($uuid), $uuids);
     }
 
     final public static function isValid(string $uuid): bool

@@ -10,6 +10,7 @@ use Ramsey\Uuid\UuidInterface;
 final class IdentifierTest extends TestCase
 {
     private const UUID = '1eb65a11-b71f-67f0-baa3-7a5ffee21f49';
+    private const UUID2 = '1eb7a9e2-7af4-6dd0-8451-0242ac1f000b';
 
     public function testGenerate(): void
     {
@@ -29,6 +30,18 @@ final class IdentifierTest extends TestCase
         TestId::fromString('bla');
     }
 
+    public function testFromStrings(): void
+    {
+        $ids = TestId::fromStrings([self::UUID, self::UUID2]);
+
+        self::assertCount(2, $ids);
+
+        self::assertInstanceOf(TestId::class, $ids[0]);
+        self::assertSame(self::UUID, $ids[0]->toString());
+        self::assertInstanceOf(TestId::class, $ids[1]);
+        self::assertSame(self::UUID2, $ids[1]->toString());
+    }
+
     public function testFromUuid(): void
     {
         $uuid = Uuid::fromString(self::UUID);
@@ -40,6 +53,18 @@ final class IdentifierTest extends TestCase
         self::assertSame(self::UUID, (string) $id);
 
         self::assertFalse($id->equals(TestId::generate()));
+    }
+
+    public function testFromUuids(): void
+    {
+        $ids = TestId::fromUuids([Uuid::fromString(self::UUID), Uuid::fromString(self::UUID2)]);
+
+        self::assertCount(2, $ids);
+
+        self::assertInstanceOf(TestId::class, $ids[0]);
+        self::assertSame(self::UUID, $ids[0]->toString());
+        self::assertInstanceOf(TestId::class, $ids[1]);
+        self::assertSame(self::UUID2, $ids[1]->toString());
     }
 
     public function testIsValid(): void
