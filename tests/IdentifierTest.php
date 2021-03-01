@@ -17,12 +17,15 @@ final class IdentifierTest extends TestCase
         self::assertInstanceOf(TestId::class, TestId::generate());
     }
 
-    public function testFromString(): void
+    /**
+     * @dataProvider strings
+     */
+    public function testFromString(string $uuid): void
     {
-        $id = TestId::fromString(self::UUID);
+        $id = TestId::fromString($uuid);
 
         self::assertInstanceOf(TestId::class, $id);
-        self::assertSame(self::UUID, $id->toString());
+        self::assertSame($uuid, $id->toString());
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('"bla" is not valid uuid.');
@@ -42,15 +45,15 @@ final class IdentifierTest extends TestCase
         self::assertSame(self::UUID2, $ids[1]->toString());
     }
 
-    public function testFromUuid(): void
+    /**
+     * @dataProvider uuids
+     */
+    public function testFromUuid(UuidInterface $uuid): void
     {
-        $uuid = Uuid::fromString(self::UUID);
         $id = TestId::fromUuid($uuid);
 
         self::assertInstanceOf(TestId::class, $id);
-        self::assertInstanceOf(UuidInterface::class, $id->toUuid());
-        self::assertSame(self::UUID, $id->toString());
-        self::assertSame(self::UUID, (string) $id);
+        self::assertSame($uuid->toString(), $id->toString());
 
         self::assertFalse($id->equals(TestId::generate()));
     }
@@ -65,6 +68,18 @@ final class IdentifierTest extends TestCase
         self::assertSame(self::UUID, $ids[0]->toString());
         self::assertInstanceOf(TestId::class, $ids[1]);
         self::assertSame(self::UUID2, $ids[1]->toString());
+    }
+
+    /**
+     * @dataProvider strings
+     * @dataProvider uuids
+     */
+    public function testFrom(string | UuidInterface $uuid): void
+    {
+        $id = TestId::from($uuid);
+
+        self::assertInstanceOf(TestId::class, $id);
+        self::assertSame((string) $uuid, $id->toString());
     }
 
     public function testIsValid(): void
@@ -118,6 +133,18 @@ final class IdentifierTest extends TestCase
         $id = TestId::generate();
 
         self::assertTrue($id->equals(unserialize(serialize($id))));
+    }
+
+    public function strings(): Generator
+    {
+        yield [self::UUID];
+        yield [self::UUID2];
+    }
+
+    public function uuids(): Generator
+    {
+        yield [Uuid::fromString(self::UUID)];
+        yield [Uuid::fromString(self::UUID2)];
     }
 }
 

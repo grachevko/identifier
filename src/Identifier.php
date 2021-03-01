@@ -79,6 +79,11 @@ abstract class Identifier implements \JsonSerializable
         return new static(Uuid::uuid6());
     }
 
+    final public static function from(string | UuidInterface $value): static
+    {
+        return new static($value);
+    }
+
     final public static function fromString(string $uuid): static
     {
         return new static($uuid);
