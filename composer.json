@@ -54,7 +54,7 @@
             "vendor/bin/phpunit --verbose"
         ],
         "psalm": [
-            "vendor/bin/psalm"
+            "vendor/bin/psalm --no-cache"
         ],
         "test": [
             "@norm",
