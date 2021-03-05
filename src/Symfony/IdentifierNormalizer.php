@@ -17,7 +17,7 @@ final class IdentifierNormalizer implements NormalizerInterface, DenormalizerInt
     {
         \assert(is_subclass_of($type, Identifier::class));
 
-        return Identifier::fromClass($type, $data);
+        return new $type($data);
     }
 
     /**

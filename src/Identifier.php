@@ -14,10 +14,10 @@ abstract class Identifier implements \JsonSerializable
 {
     private string $uuid;
 
-    final private function __construct(string | UuidInterface $uuid)
+    final public function __construct(string | UuidInterface $uuid)
     {
         $this->uuid = match (true) {
-            \is_string($uuid) && self::isValid($uuid) => $uuid,
+            \is_string($uuid) && Uuid::isValid($uuid) => $uuid,
             $uuid instanceof UuidInterface => $uuid->toString(),
             default => throw new \InvalidArgumentException(sprintf('"%s" is not valid uuid.', $uuid)),
         };
@@ -41,39 +41,6 @@ abstract class Identifier implements \JsonSerializable
         return $this->uuid;
     }
 
-    /**
-     * @template T of Identifier
-     *
-     * @psalm-param class-string<T> $class
-     */
-    final public static function fromClass(string $class, string | UuidInterface $uuid): static
-    {
-        /** @var callable $callable */
-        $callable = $class.'::'.(\is_string($uuid) ? 'fromString' : 'fromUuid');
-        $identifier = $callable($uuid);
-
-        \assert($identifier instanceof $class);
-
-        /** @phpstan-ignore-next-line */
-        return $identifier;
-    }
-
-    /**
-     * @psalm-mutation-free
-     */
-    final public static function same(?self $left, ?self $right): bool
-    {
-        if (null === $left || null === $right) {
-            return false;
-        }
-
-        if ($left::class !== $right::class) {
-            return false;
-        }
-
-        return $left->equals($right);
-    }
-
     final public static function generate(): static
     {
         return new static(Uuid::uuid6());
@@ -82,62 +49,6 @@ abstract class Identifier implements \JsonSerializable
     final public static function from(string | UuidInterface $value): static
     {
         return new static($value);
-    }
-
-    final public static function fromString(string $uuid): static
-    {
-        return new static($uuid);
-    }
-
-    /**
-     * @param string[] $uuids
-     *
-     * @return static[]
-     */
-    final public static function fromStrings(array $uuids): array
-    {
-        return array_map(fn (string $uuid) => new static($uuid), $uuids);
-    }
-
-    final public static function fromAny(mixed $any): static
-    {
-        if ($any instanceof static) {
-            return $any;
-        }
-
-        if ($any instanceof self) {
-            return new static($any->toUuid());
-        }
-
-        if ($any instanceof UuidInterface) {
-            return static::fromUuid($any);
-        }
-
-        if (\is_string($any)) {
-            return static::fromString($any);
-        }
-
-        throw new \InvalidArgumentException('Unexpected any: '.get_debug_type($any));
-    }
-
-    final public static function fromUuid(UuidInterface $uuid): static
-    {
-        return new static($uuid);
-    }
-
-    /**
-     * @param UuidInterface[] $uuids
-     *
-     * @return static[]
-     */
-    final public static function fromUuids(array $uuids): array
-    {
-        return array_map(fn (UuidInterface $uuid) => new static($uuid), $uuids);
-    }
-
-    final public static function isValid(string $uuid): bool
-    {
-        return Uuid::isValid($uuid);
     }
 
     final public function toUuid(): UuidInterface

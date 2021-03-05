@@ -63,13 +63,9 @@ final class IdentifierType extends Type
             return null;
         }
 
-        /** @var callable $callable */
-        $callable = $this->class.'::fromString';
-        $identifier = $callable($value);
+        $class = $this->class;
 
-        \assert($identifier instanceof Identifier);
-
-        return $identifier;
+        return new $class($value);
     }
 
     /**

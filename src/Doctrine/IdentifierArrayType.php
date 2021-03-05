@@ -72,10 +72,9 @@ final class IdentifierArrayType extends Type
             throw ConversionException::conversionFailed($value, $this->getName(), $e);
         }
 
-        /** @var callable $callable */
-        $callable = $this->class.'::fromString';
+        $class = $this->class;
 
-        return array_map(static fn (string $id): Identifier => $callable($id), $value);
+        return array_map(static fn (string $id): Identifier => new $class($id), $value);
     }
 
     /**
