@@ -5,7 +5,6 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use Premier\Identifier\Identifier;
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 
 final class IdentifierTest extends TestCase
 {
@@ -18,15 +17,51 @@ final class IdentifierTest extends TestCase
     }
 
     /**
-     * @dataProvider strings
-     * @dataProvider uuids
+     * @dataProvider values
      */
-    public function testFrom(string | UuidInterface $uuid): void
+    public function testFrom(array $values, string $expected): void
     {
-        $id = TestId::from($uuid);
+        $id = TestId::from(...$values);
 
         self::assertInstanceOf(TestId::class, $id);
-        self::assertSame((string) $uuid, $id->toString());
+        self::assertSame($expected, $id->toString());
+    }
+
+    public function testFromNull(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Expect at least one non nullable value');
+
+        TestId::from(null);
+    }
+
+    /**
+     * @dataProvider values
+     */
+    public function testTry(array $values, ?string $expected): void
+    {
+        $id = TestId::try(...$values);
+
+        self::assertInstanceOf(TestId::class, $id);
+        self::assertSame($expected, $id->toString());
+    }
+
+    public function testTryNull(): void
+    {
+        $id = TestId::try(null);
+
+        self::assertNull($id);
+    }
+
+    public function values(): Generator
+    {
+        yield [[self::UUID], self::UUID];
+        yield [[null, self::UUID], self::UUID];
+        yield [[self::UUID2], self::UUID2];
+        yield [[null, null, self::UUID2, self::UUID], self::UUID2];
+        yield [[Uuid::fromString(self::UUID)], self::UUID];
+        yield [[Uuid::fromString(self::UUID2)], self::UUID2];
+        yield [[null, Uuid::fromString(self::UUID2)], self::UUID2];
     }
 
     public function testFromFail(): void
@@ -60,18 +95,6 @@ final class IdentifierTest extends TestCase
         $id = TestId::generate();
 
         self::assertTrue($id->equals(unserialize(serialize($id))));
-    }
-
-    public function strings(): Generator
-    {
-        yield [self::UUID];
-        yield [self::UUID2];
-    }
-
-    public function uuids(): Generator
-    {
-        yield [Uuid::fromString(self::UUID)];
-        yield [Uuid::fromString(self::UUID2)];
     }
 }
 
