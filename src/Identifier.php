@@ -46,12 +46,12 @@ abstract class Identifier implements \JsonSerializable
         return new static(Uuid::uuid6());
     }
 
-    final public static function from(mixed ...$values): static
+    final public static function from(string | UuidInterface | self | null ...$values): static
     {
         return self::try(...$values) ?? throw new \InvalidArgumentException('Expect at least one non nullable value');
     }
 
-    final public static function try(mixed ...$values): ?static
+    final public static function try(string | UuidInterface | self | null ...$values): ?static
     {
         foreach ($values as $value) {
             if (null === $value) {
@@ -59,9 +59,8 @@ abstract class Identifier implements \JsonSerializable
             }
 
             return match (true) {
-                \is_string($value), $value instanceof UuidInterface => new static($value),
-                $value instanceof self => new static($value->toUuid()),
-                default => throw new \InvalidArgumentException('Unexpected value '.get_debug_type($value)),
+                \is_string($value) || $value instanceof UuidInterface => new static($value),
+                default => new static($value->toUuid()),
             };
         }
 
