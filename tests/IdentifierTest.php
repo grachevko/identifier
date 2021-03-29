@@ -62,6 +62,7 @@ final class IdentifierTest extends TestCase
         yield [[Uuid::fromString(self::UUID)], self::UUID];
         yield [[Uuid::fromString(self::UUID2)], self::UUID2];
         yield [[null, Uuid::fromString(self::UUID2)], self::UUID2];
+        yield [[TestId::from(self::UUID2)], self::UUID2];
     }
 
     public function testFromFail(): void
