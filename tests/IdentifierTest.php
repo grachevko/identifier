@@ -32,6 +32,7 @@ final class IdentifierTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Expect at least one non nullable value');
 
+        /** @phpstan-ignore-next-line  */
         TestId::from(null);
     }
 
@@ -70,6 +71,7 @@ final class IdentifierTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('"bla" is not valid uuid.');
 
+        /** @phpstan-ignore-next-line  */
         TestId::from('bla');
     }
 
