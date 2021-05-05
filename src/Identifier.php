@@ -46,11 +46,17 @@ abstract class Identifier implements \JsonSerializable
         return new static(Uuid::uuid6());
     }
 
+    /**
+     * @psalm-pure
+     */
     final public static function from(string | UuidInterface | self | null ...$values): static
     {
         return self::try(...$values) ?? throw new \InvalidArgumentException('Expect at least one non nullable value');
     }
 
+    /**
+     * @psalm-pure
+     */
     final public static function try(string | UuidInterface | self | null ...$values): ?static
     {
         foreach ($values as $value) {
