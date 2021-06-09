@@ -14,24 +14,6 @@ use Premier\Identifier\Identifier;
  */
 final class IdentifierArrayType extends Type
 {
-    public string $name;
-
-    /** @var class-string<Identifier> */
-    public string $class;
-
-    /**
-     * @param class-string<Identifier> $class
-     */
-    public static function register(string $name, string $class): void
-    {
-        Type::addType($name, self::class);
-        $type = Type::getType($name);
-        \assert($type instanceof self);
-
-        $type->name = $name;
-        $type->class = $class;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -42,7 +24,7 @@ final class IdentifierArrayType extends Type
         }
 
         if (!\is_array($value)) {
-            throw ConversionException::conversionFailed($value, $this->name);
+            throw ConversionException::conversionFailed($value, $this->getName());
         }
 
         $value = array_map(static fn (Identifier $identifier): string => $identifier->toString(), $value);
@@ -72,9 +54,18 @@ final class IdentifierArrayType extends Type
             throw ConversionException::conversionFailed($value, $this->getName(), $e);
         }
 
-        $class = $this->class;
+        $map = array_flip(Identifier::$map);
 
-        return array_map(static fn (string $id): Identifier => new $class($id), $value);
+        return array_map(
+            function (string $id) use ($map, $value): Identifier {
+                $node = substr($id, 24);
+                /** @var class-string<Identifier> $class */
+                $class = $map[$node] ?? throw ConversionException::conversionFailed($value, $this->getName());
+
+                return new $class($id);
+            },
+            $value
+        );
     }
 
     /**
@@ -90,7 +81,7 @@ final class IdentifierArrayType extends Type
      */
     public function getName(): string
     {
-        return $this->name;
+        return 'identifiers';
     }
 
     /**

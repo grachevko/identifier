@@ -2,14 +2,23 @@
 
 declare(strict_types=1);
 
+use Nyholm\NSA;
 use PHPUnit\Framework\TestCase;
 use Premier\Identifier\Identifier;
 use Ramsey\Uuid\Uuid;
 
 final class IdentifierTest extends TestCase
 {
-    private const UUID = '1eb65a11-b71f-67f0-baa3-7a5ffee21f49';
-    private const UUID2 = '1eb7a9e2-7af4-6dd0-8451-0242ac1f000b';
+    private const UUID = '1eb65a11-b71f-67f0-baa3-2a3feb9bc3bc';
+    private const UUID2 = '1eb7a9e2-7af4-6dd0-8451-2a3feb9bc3bc';
+
+    public static function setUpBeforeClass(): void
+    {
+        Identifier::$map = [
+            TestId::class => '2a3feb9bc3bc',
+            Test2Id::class => '1ad5d00b1e11',
+        ];
+    }
 
     public function testGenerate(): void
     {
@@ -32,7 +41,7 @@ final class IdentifierTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Expect at least one non nullable value');
 
-        /** @phpstan-ignore-next-line  */
+        /** @phpstan-ignore-next-line */
         TestId::from(null);
     }
 
@@ -62,8 +71,6 @@ final class IdentifierTest extends TestCase
         yield [[null, null, self::UUID2, self::UUID], self::UUID2];
         yield [[Uuid::fromString(self::UUID)], self::UUID];
         yield [[Uuid::fromString(self::UUID2)], self::UUID2];
-        yield [[null, Uuid::fromString(self::UUID2)], self::UUID2];
-        yield [[TestId::from(self::UUID2)], self::UUID2];
     }
 
     public function testFromFail(): void
@@ -71,7 +78,7 @@ final class IdentifierTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('"bla" is not valid uuid.');
 
-        /** @phpstan-ignore-next-line  */
+        /** @phpstan-ignore-next-line */
         TestId::from('bla');
     }
 
@@ -82,7 +89,10 @@ final class IdentifierTest extends TestCase
         self::assertFalse($id->equals(TestId::generate()));
 
         self::assertTrue($id->equals($id->toString()));
-        self::assertFalse($id->equals(Test2Id::from($id->toString())));
+
+        $id2 = Test2Id::generate();
+        NSA::setProperty($id2, 'uuid', $id->toString());
+        self::assertFalse($id->equals($id2));
     }
 
     public function testJsonSerialize(): void
