@@ -16,24 +16,6 @@ use Ramsey\Uuid\UuidInterface;
  */
 final class IdentifierType extends Type
 {
-    public string $name;
-
-    /** @var class-string<Identifier> */
-    public string $class;
-
-    /**
-     * @param class-string<Identifier> $class
-     */
-    public static function register(string $name, string $class): void
-    {
-        Type::addType($name, self::class);
-        $type = Type::getType($name);
-        \assert($type instanceof self);
-
-        $type->name = $name;
-        $type->class = $class;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -51,7 +33,7 @@ final class IdentifierType extends Type
             return $value->toString();
         }
 
-        throw ConversionException::conversionFailed($value, $this->name);
+        throw ConversionException::conversionFailed($value, $this->getName());
     }
 
     /**
@@ -63,7 +45,10 @@ final class IdentifierType extends Type
             return null;
         }
 
-        $class = $this->class;
+        $node = substr($value, 24);
+
+        /** @var class-string<Identifier> $class */
+        $class = array_flip(Identifier::$map)[$node] ?? throw ConversionException::conversionFailed($value, $this->getName());
 
         return new $class($value);
     }
@@ -81,7 +66,7 @@ final class IdentifierType extends Type
      */
     public function getName(): string
     {
-        return $this->name;
+        return 'identifier';
     }
 
     /**

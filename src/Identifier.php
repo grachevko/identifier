@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Premier\Identifier;
 
+use Ramsey\Uuid\Type\Hexadecimal;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -12,15 +13,30 @@ use Ramsey\Uuid\UuidInterface;
  */
 abstract class Identifier implements \JsonSerializable
 {
+    /**
+     * @var array<class-string<Identifier>, string>
+     */
+    public static array $map = [];
+
     private string $uuid;
 
     final public function __construct(string | UuidInterface $uuid)
     {
-        $this->uuid = match (true) {
-            \is_string($uuid) && Uuid::isValid($uuid) => $uuid,
-            $uuid instanceof UuidInterface => $uuid->toString(),
-            default => throw new \InvalidArgumentException(sprintf('"%s" is not valid uuid.', $uuid)),
-        };
+        if (\is_string($uuid) && !Uuid::isValid($uuid)) {
+            throw new \InvalidArgumentException(sprintf('"%s" is not valid uuid.', $uuid));
+        }
+
+        if ($uuid instanceof UuidInterface) {
+            $uuid = $uuid->toString();
+        }
+
+        $node = substr($uuid, 24);
+
+        if (!\in_array($node, self::$map, true)) {
+            throw new \InvalidArgumentException(sprintf('Hexadecimal Node "%s" not found in map: %s', $node, http_build_query(self::$map)));
+        }
+
+        $this->uuid = $uuid;
     }
 
     final public function __toString(): string
@@ -43,7 +59,7 @@ abstract class Identifier implements \JsonSerializable
 
     final public static function generate(): static
     {
-        return new static(Uuid::uuid6());
+        return new static(Uuid::uuid6(new Hexadecimal(self::$map[static::class])));
     }
 
     /**
