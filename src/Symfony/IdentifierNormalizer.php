@@ -45,4 +45,9 @@ final class IdentifierNormalizer implements NormalizerInterface, DenormalizerInt
     {
         return $data instanceof Identifier;
     }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return [Identifier::class => true];
+    }
 }
