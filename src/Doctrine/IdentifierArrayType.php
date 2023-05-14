@@ -98,6 +98,6 @@ final class IdentifierArrayType extends Type
      */
     public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
-        return !$platform->hasNativeJsonType();
+        return true;
     }
 }

@@ -29,7 +29,11 @@
         "vimeo/psalm": "^4.4"
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "infection/extension-installer": true,
+            "ergebnis/composer-normalize": true
+        }
     },
     "autoload": {
         "psr-4": {
